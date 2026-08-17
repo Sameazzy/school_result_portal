@@ -1,3 +1,118 @@
 from django.db import models
 
-# Create your models here.
+class ClassRoom(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+class Student(models.Model):
+    admission_number = models.CharField(
+        max_length=20, 
+        unique=True
+    )
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    class_room = models.ForeignKey(
+        ClassRoom, 
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+class AcademicSession(models.Model):
+    session = models.CharField(max_length=20) 
+
+    term = models.CharField(
+        max_length=20,
+        choices=[
+            ('First Term', 'First Term'),
+            ('Second Term', 'Second Term'),
+            ('Third Term', 'Third Term')
+        ]
+    )
+    def __str__(self):
+        return f"{self.session} - {self.term}"
+
+class Score(models.Model):
+    student = models.ForeignKey(
+        Student, 
+        on_delete=models.CASCADE
+    )
+    subject = models.ForeignKey(
+            'Subject',
+            on_delete=models.CASCADE
+    )
+    academic_session = models.ForeignKey(
+        AcademicSession, 
+        on_delete=models.CASCADE
+    )
+    
+    ca_score = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2
+    )
+    exam_score = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2
+    )
+
+    #Calculate student's total for subject
+    @property
+    def total(self):
+        return self.ca_score + self.exam_score
+
+    #Convert the total to appropraite grade
+    @property
+    def grade(self):
+        total = self.total
+        if total >= 70:
+            return 'A'
+        elif total >= 60:
+            return 'B'
+        elif total >= 50:
+            return 'C'
+        elif total >= 45:
+            return 'D'
+        else:
+            return 'F'
+
+    #Provide a descriptive remark based on the grade
+    @property
+    def remark(self):
+        remarks = {
+            "A": "Excellent",
+            "B": "Very Good",
+            "C": "Good",
+            "D": "Fair",
+            "E": "Pass",
+            "F": "Fail",
+        }
+
+        return remarks[self.grade]
+
+    def __str__(self):
+        return f"{self.student}"
+
+    class Meta:
+        # Prevent duplicate entry for a student for the same subject 
+        # in the same academic session/term 
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "student",
+                    "subject",
+                    "academic_session"
+                ],
+                name="unique_student_subject_session"
+            )
+        ]
