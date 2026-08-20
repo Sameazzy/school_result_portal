@@ -1,18 +1,43 @@
 # Import Django's path function.
-# It allows us to define URLs for our application.
 from django.urls import path
 
-#Import the views from our results application.
+# Import views from this application.
 from . import views
 
-# These are the URLs belonging to the results application.
-urlpatterns = [
 
-    # Example URL:
-    # http://127.0.0.1:8000/student/1/
-    #
-    # <int:student_id> captures the student's ID
-    # and passes it to the student_result view.
+urlpatterns = [
+    # register a student.
+    path(
+        "register/",
+        views.student_register,
+        name="student_register"
+    ),
+
+
+    # Student login page.
+    path(
+        "login/",
+        views.student_login,
+        name="student_login"
+    ),
+
+    # Student dashboard.
+    path(
+        "dashboard/",
+        views.student_dashboard,
+        name="student_dashboard"
+    ),
+
+    # Log the student out.
+    path(
+        "logout/",
+        views.student_logout,
+        name="student_logout"
+    ),
+
+    # Temporary direct student result URL.
+    # We will replace this later with a protected
+    # "My Result" page.
     path(
         "student/<int:student_id>/",
         views.student_result,

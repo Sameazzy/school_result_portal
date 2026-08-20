@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class ClassRoom(models.Model):
     name = models.CharField(max_length=100)
@@ -8,17 +9,70 @@ class ClassRoom(models.Model):
         return self.name
 
 class Student(models.Model):
-    admission_number = models.CharField(
-        max_length=20, 
-        unique=True
+    # Connect each student to a Django user account.
+    # This will be used for authentication and login.
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
+
+    # Automatically generated admission number.
+    admission_number = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True
+    )
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
-    class_room = models.ForeignKey(
-        ClassRoom, 
+    # Student's gender.
+    # M = Male
+    # F = Female
+    gender = models.CharField(
+        max_length=1,
+        choices=[
+            ("M", "Male"),
+            ("F", "Female"),
+        ],
+        blank=True,
+        null=True
+    )
+
+    # The class the student belongs to.
+    classroom = models.ForeignKey(
+        ClassRoom,
         on_delete=models.CASCADE
     )
+
+    def save(self, *args, **kwargs):
+        """
+        Automatically generate an admission number
+        when a new student is created.
+        """
+
+        # Only generate an admission number if one
+        # has not already been assigned.
+        if not self.admission_number:
+
+            # Get the most recently created student.
+            last_student = Student.objects.order_by("-id").first()
+
+            if last_student:
+                next_number = last_student.id + 1
+            else:
+                next_number = 1
+
+            # Generate numbers such as:
+            # STU001
+            # STU002
+            # STU003
+            self.admission_number = f"STU{next_number:03d}"
+
+        # Save the student normally.
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

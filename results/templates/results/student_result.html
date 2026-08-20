@@ -30,7 +30,7 @@
              SCHOOL HEADER
         ====================================== -->
         <div class="text-center mb-4">
-            <h1>ABC SCHOOL</h1>
+            <h1>MUEASY ACADEMY</h1>
             <h3>STUDENT RESULT</h3>
         </div>
 
@@ -65,11 +65,104 @@
                             </strong>
                             {{ student.classroom }}
                         </p>
+                        {% if selected_session %}
+
+                        <p>
+                            <strong>Session/Term:</strong>
+                            {{ selected_session }}
+                        </p>
+
+{% endif %}
+                        
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- =====================================
+     SESSION AND TERM SELECTION
+====================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-body">
+
+        <h4>Select Result</h4>
+
+        <!--
+            This form sends the selected academic
+            session ID through the URL.
+        -->
+
+        <form method="GET">
+
+            <div class="row">
+
+                <div class="col-md-8">
+
+                    <label
+                        for="session"
+                        class="form-label"
+                    >
+
+                        Academic Session and Term
+
+                    </label>
+
+                    <!-- Dropdown containing all sessions/terms -->
+                    <select
+                        name="session"
+                        id="session"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Select Session and Term
+                        </option>
+
+                        {% for academic_session in academic_sessions %}
+
+                        <option
+                            value="{{ academic_session.id }}"
+
+                            {% if selected_session.id == academic_session.id %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ academic_session }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Submit button -->
+                <div class="col-md-4 d-flex align-items-end">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+
+                        View Result
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
         <!-- =====================================
              RESULT TABLE
         ====================================== -->

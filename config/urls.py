@@ -8,6 +8,7 @@ from django.urls import path, include
 
 # Main URL configuration for the entire project.
 urlpatterns = [
+
     path('admin/', admin.site.urls),
 
     # Send requests to our results application.
