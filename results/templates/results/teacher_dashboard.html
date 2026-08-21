@@ -84,10 +84,15 @@
                             <td>
 
                                 <a
-                                    href="#"
-                                    class="btn btn-primary btn-sm"
+                                    href="{% url 'enter_score' student.id %}"
+                                    class="btn btn-primary btn-sm me-2"
                                 >
                                     Enter Score
+                                </a>
+                                <a href="{% url 'student_result' student.id %}"
+                                    class="btn btn-info btn-sm"
+                                >
+                                    Result Summary
                                 </a>
 
                             </td>

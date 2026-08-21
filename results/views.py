@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 # Import transaction so User and Student are created together.
 from django.db import transaction
 
+from django.contrib import messages
+
 # Import redirect for sending users to another page.
 from django.shortcuts import (
     render,
@@ -18,7 +20,7 @@ from django.shortcuts import (
 )
 
 # Import our database models.
-from .models import Student, Teacher, Score, AcademicSession, ClassRoom
+from .models import Student, Teacher, Score, AcademicSession, ClassRoom, Subject
 
 # Define Student Registration
 def student_register(request):
@@ -224,6 +226,65 @@ def teacher_dashboard(request):
         }
     )
 
+@login_required
+def enter_score(request, student_id):
+    """Allow a teacher to enter a score for a student in their class."""
+
+    # Get the teacher linked to the logged-in user.
+    teacher = get_object_or_404(
+        Teacher,
+        user=request.user
+    )
+
+    # Get the selected student.
+    student = get_object_or_404(
+        Student,
+        id=student_id,
+        classroom=teacher.classroom
+    )
+
+    # Get available subjects and academic sessions.
+    subjects = Subject.objects.all()
+    academic_sessions = AcademicSession.objects.all()
+
+    if request.method == "POST":
+
+        subject_id = request.POST.get("subject")
+        session_id = request.POST.get("academic_session")
+        ca_score = request.POST.get("ca_score")
+        exam_score = request.POST.get("exam_score")
+
+        # Create or update the student's score.
+        Score.objects.update_or_create(
+            student=student,
+            subject_id=subject_id,
+            academic_session_id=session_id,
+            defaults={
+                "ca_score": ca_score,
+                "exam_score": exam_score,
+            }
+        )
+
+        messages.success(
+            request,
+            "Score saved successfully."
+        )
+
+        return redirect(
+            "enter_score",
+            student_id=student.id
+        )
+
+    return render(
+        request,
+        "results/enter_score.html",
+        {
+            "student": student,
+            "subjects": subjects,
+            "academic_sessions": academic_sessions,
+        }
+    )
+
 #Create the Student Dashboard
 @login_required
 def student_dashboard(request):
@@ -236,13 +297,18 @@ def student_dashboard(request):
         Student,
         user=request.user
     )
+    # Find the teacher connected to the student's class
+    teacher = Teacher.objects.filter(
+        classroom=student.classroom
+    ).first()
 
     # Display the student's dashboard.
     return render(
         request,
         "results/dashboard.html",
         {
-            "student": student
+            "student": student,
+            "teacher": teacher,
         }
     )
 
@@ -261,6 +327,10 @@ def student_logout(request):
    
 #Define Student Result
 def student_result(request, student_id):
+    # Check if the logged-in user is a teacher.
+    is_teacher = Teacher.objects.filter(
+        user=request.user
+    ).exists()
     """
     Display a student's result.
 
@@ -339,5 +409,6 @@ def student_result(request, student_id):
             "scores": scores,
             "total_score": total_score,
             "average": average,
+            "is_teacher": is_teacher,
         }
     )

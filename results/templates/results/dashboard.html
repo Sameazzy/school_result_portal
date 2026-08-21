@@ -90,6 +90,15 @@
                     {{ student.classroom }}
 
                 </p>
+                <p>
+                    <strong>Class Teacher:</strong>
+
+                    {% if teacher %}
+                        {{ teacher.user.get_full_name|default:teacher.user.username }}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </p>
 
 
                 <!-- Temporary link to the student's result -->

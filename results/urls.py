@@ -29,11 +29,18 @@ urlpatterns = [
     ),
 
     # Teacher dashboard.
-        path(
-            "teacher/dashboard/",
-            views.teacher_dashboard,
-            name="teacher_dashboard"
-        ),
+    path(
+        "teacher/dashboard/",
+        views.teacher_dashboard,
+        name="teacher_dashboard"
+    ),
+
+    #Enter score page
+    path(
+    "teacher/score/<int:student_id>/",
+    views.enter_score,
+    name="enter_score"
+),
 
     # Log the student out.
     path(
