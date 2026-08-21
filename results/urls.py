@@ -28,6 +28,13 @@ urlpatterns = [
         name="student_dashboard"
     ),
 
+    # Teacher dashboard.
+        path(
+            "teacher/dashboard/",
+            views.teacher_dashboard,
+            name="teacher_dashboard"
+        ),
+
     # Log the student out.
     path(
         "logout/",

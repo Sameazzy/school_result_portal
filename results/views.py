@@ -18,7 +18,7 @@ from django.shortcuts import (
 )
 
 # Import our database models.
-from .models import Student, Score, AcademicSession, ClassRoom
+from .models import Student, Teacher, Score, AcademicSession, ClassRoom
 
 # Define Student Registration
 def student_register(request):
@@ -149,33 +149,43 @@ def student_register(request):
 
 #Define Login Functionality
 def student_login(request):
-    """
-    Allow a student to log into the results portal.
-    """
+    """Allow students and teachers to log into the portal."""
 
-    # Check if the login form was submitted.
     if request.method == "POST":
 
-        # Get the username and password entered by the student.
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        # Check whether the username and password are valid.
         user = authenticate(
             request,
             username=username,
             password=password
         )
 
-        # If the user is valid, log them in.
         if user is not None:
 
+            # Log the user in.
             login(request, user)
 
-            # Send the student to their dashboard.
-            return redirect("student_dashboard")
+            # Send teachers to the teacher dashboard.
+            if Teacher.objects.filter(user=user).exists():
+                return redirect("teacher_dashboard")
 
-        # If login fails, show an error message.
+            # Send students to the student dashboard.
+            if Student.objects.filter(user=user).exists():
+                return redirect("student_dashboard")
+
+            # User exists but has no Student or Teacher profile.
+            logout(request)
+
+            return render(
+                request,
+                "results/login.html",
+                {
+                    "error": "Your account is not linked to a student or teacher profile."
+                }
+            )
+
         return render(
             request,
             "results/login.html",
@@ -184,10 +194,34 @@ def student_login(request):
             }
         )
 
-    # Display the login page.
     return render(
         request,
         "results/login.html"
+    )
+
+#Create the Teacher Dashboard
+@login_required
+def teacher_dashboard(request):
+    """Display students in the teacher's assigned classroom."""
+
+    # Get the teacher linked to the logged-in user.
+    teacher = get_object_or_404(
+        Teacher,
+        user=request.user
+    )
+
+    # Get only students in the teacher's classroom.
+    students = Student.objects.filter(
+        classroom=teacher.classroom
+    )
+
+    return render(
+        request,
+        "results/teacher_dashboard.html",
+        {
+            "teacher": teacher,
+            "students": students,
+        }
     )
 
 #Create the Student Dashboard

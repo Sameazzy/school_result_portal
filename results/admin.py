@@ -4,6 +4,7 @@ from django.contrib import admin
 # Import the database models we created
 from .models import (
     ClassRoom, 
+    Teacher,
     Student, 
     Subject, 
     AcademicSession, 
@@ -14,9 +15,11 @@ from .models import (
 # This allows the administrator to add, edit, and delete
 # classes, students, subjects, and academic sessions.
 admin.site.register(ClassRoom)
+admin.site.register(Teacher)
 admin.site.register(Student)
 admin.site.register(Subject)
 admin.site.register(AcademicSession)
+
 
 # Register the Score model with a customized Admin interface.
 # This allows us to control which information is displayed

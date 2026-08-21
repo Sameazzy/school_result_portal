@@ -8,6 +8,25 @@ class ClassRoom(models.Model):
     def __str__(self):
         return self.name
 
+class Teacher(models.Model):
+    """Represents a teacher assigned to a classroom."""
+
+    # Link teacher to a Django user account for login.
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    # Assign the teacher to one classroom.
+    classroom = models.ForeignKey(
+        ClassRoom,
+        on_delete=models.CASCADE
+    )
+
+    # Display the teacher's name or username.
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username
+
 class Student(models.Model):
     # Connect each student to a Django user account.
     # This will be used for authentication and login.

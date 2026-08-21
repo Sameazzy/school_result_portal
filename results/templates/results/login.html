@@ -51,7 +51,7 @@
 
 
                         <!-- Login form -->
-                        <form method="POST">
+                        <form method="POST" action="{% url 'student_login' %}">
 
                             <!-- Django security token -->
                             {% csrf_token %}
